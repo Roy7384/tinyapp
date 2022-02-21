@@ -1,3 +1,33 @@
+// function to generate a unique shortURL
+const generateRandomString = function(urlDB) {
+
+  // helper function to generate the random string from character set of 0-9, A-Z and a-z
+  const randomValidCharCode = function() {
+    let result = '';
+  
+    for (let i = 0; i < 6; i++) {
+      let randomCharCode = 60;
+      while ((randomCharCode > 57 && randomCharCode < 65)
+          || (randomCharCode > 90 && randomCharCode < 97)) {
+        randomCharCode = Math.floor(48 + Math.random() * 74);
+      }
+      result += String.fromCharCode(randomCharCode);
+    }
+  
+    return result;
+  };
+
+  // set a starting point to start the generation process
+  let result = Object.keys(urlDB)[0];
+  // keep generating string if the generated string exists in urlDB already
+  while (urlDB[result]) {
+    result = randomValidCharCode();
+  }
+  return result;
+
+};
+
+// Server codes
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
