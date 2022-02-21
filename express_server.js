@@ -72,7 +72,7 @@ app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString(urlDatabase);
   const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
-  res.send("ok");
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 // route to return a page that shows a single URL and its shortened form
@@ -81,6 +81,12 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show.ejs', templateVars);
 });
 
+// redirect shortURL to longURL
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  console.log(longURL);
+  res.redirect(longURL);
+});
 
 // setup server to listen incoming requests made to port: PORT
 app.listen(PORT, () => {
