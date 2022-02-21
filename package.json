@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Roy7384/tinyapp/issues"
   },
-  "homepage": "https://github.com/Roy7384/tinyapp#readme"
+  "homepage": "https://github.com/Roy7384/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
 }
