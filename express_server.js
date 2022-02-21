@@ -66,8 +66,12 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+// route to handle the post request from client
 app.post('/urls', (req, res) => {
   console.log(req.body);
+  const newShortURL = generateRandomString(urlDatabase);
+  const newLongURL = req.body.longURL;
+  urlDatabase[newShortURL] = newLongURL;
   res.send("ok");
 });
 
