@@ -1,4 +1,5 @@
 const express = require("express");
+const res = require("express/lib/response");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -9,7 +10,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// four handlers when client request corresponding endpoints
+// handlers when client requests corresponding endpoints
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -20,6 +21,12 @@ app.get('/urls.json', (req, res) => {
 
 app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+// pass the urlDatabase to ejs template
+app.get('/urls', (req, res) => {
+  const templateVars = {urls: urlDatabase };
+  res.render('urls_index', templateVars);
 });
 
 // setup server to listen incoming requests made to port: PORT
