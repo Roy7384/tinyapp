@@ -8,6 +8,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// four handlers when client request corresponding endpoints
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -20,6 +21,7 @@ app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// setup server to listen incoming requests made to port: PORT
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
