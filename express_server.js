@@ -23,7 +23,7 @@ app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// pass the urlDatabase to ejs template
+// pass the urlDatabase to ejs template to display urls_index page
 app.get('/urls', (req, res) => {
   const templateVars = {urls: urlDatabase };
   res.render('urls_index', templateVars);
