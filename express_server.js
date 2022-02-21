@@ -1,6 +1,8 @@
 const express = require("express");
-const res = require("express/lib/response");
 const app = express();
+const bodyParser = require("body-parser");
+const res = require("express/lib/response");
+app.use(bodyParser.urlencoded({extended: true}));
 const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
@@ -29,11 +31,22 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-// endpoint to return a page that shows a single URL and its shortened form
+// route to render url submit page
+app.get('/urls/new', (req, res) => {
+  res.render('urls_new');
+});
+
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send("ok");
+});
+
+// route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render('urls_show.ejs', templateVars);
 });
+
 
 // setup server to listen incoming requests made to port: PORT
 app.listen(PORT, () => {
