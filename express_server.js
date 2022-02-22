@@ -31,7 +31,6 @@ const generateRandomString = function(urlDB) {
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const res = require("express/lib/response");
 app.use(bodyParser.urlencoded({extended: true}));
 const PORT = 8080; // default port 8080
 
