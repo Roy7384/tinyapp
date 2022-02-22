@@ -89,6 +89,13 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
+// route to handle the edit post request
+app.post('/u/:shortURL/edit', (req, res) => {
+  const newLongURL = req.body.longURL;
+  urlDatabase[req.params.shortURL] = newLongURL;
+  res.redirect('/urls');
+});
+
 // redirect shortURL to longURL
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
