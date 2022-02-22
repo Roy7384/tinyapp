@@ -65,14 +65,14 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
-// route to handle the post request from client
+// route to handle the add new url post request from client
 app.post('/urls', (req, res) => {
-  console.log(req.body);
   const newShortURL = generateRandomString(urlDatabase);
   const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
   res.redirect(`/urls/${newShortURL}`);
 });
+
 
 // route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
@@ -80,10 +80,16 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show.ejs', templateVars);
 });
 
+// route to handle the delete post request
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  console.log(urlDatabase);
+  res.redirect('/urls');
+});
+
 // redirect shortURL to longURL
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  console.log(longURL);
   res.redirect(longURL);
 });
 
