@@ -92,6 +92,10 @@ app.get('/urls/new', (req, res) => {
   const templateVars = {
     user: userDatabase[req.cookies['user_id']]
   };
+  if (!templateVars.user) {
+    res.redirect('/registration');
+    return;
+  }
   res.render('urls_new', templateVars);
 });
 
