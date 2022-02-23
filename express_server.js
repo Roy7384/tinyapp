@@ -140,6 +140,10 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // route to handle the delete post request
 app.post('/urls/:shortURL/delete', (req, res) => {
+  if (!userID) {
+    res.redirect('/registration');
+    return;
+  }
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
