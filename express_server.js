@@ -120,11 +120,11 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 // route for user login using cookie
-app.post('/login', (req, res) => {
-  const userName = req.body.username;
-  res.cookie('username', userName);
-  res.redirect('/urls');
-});
+// app.post('/login', (req, res) => {
+//   const userName = req.body.username;
+//   res.cookie('username', userName);
+//   res.redirect('/urls');
+// });
 
 // route for user logout and clear cookie
 app.post('/logout', (req, res) => {
@@ -165,6 +165,14 @@ app.post('/registration', (req, res) => {
   
   res.cookie('user_id', userRandomID);
   res.redirect('/urls');
+});
+
+// route get to render user login page request
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: userDatabase[req.cookies.user_id]
+  };
+  res.render('urls_login', templateVars);
 });
 
 // setup server to listen incoming requests made to port: PORT

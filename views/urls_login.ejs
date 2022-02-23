@@ -3,13 +3,13 @@
 <head>
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp - User Registration</title>
+  <title>TinyApp - User Login</title>
 </head>
 
 <body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
-    <form action="/registration" method="POST">
+    <form action="/login" method="POST">
       <div class="form-group">
         <label for="exampleInputEmail1">Email address</label>
         <input type="email" name="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email" style="width: 300px;">
@@ -19,7 +19,7 @@
         <label for="exampleInputPassword1">Password</label>
         <input type="password" name="password" class="form-control" placeholder="Password" style="width: 300px;">
       </div>
-      <button type="submit" class="btn btn-primary">Register</button>
+      <button type="submit" class="btn btn-primary">Login</button>
     </form>
   
   </main>
