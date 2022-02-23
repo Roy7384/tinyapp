@@ -44,7 +44,7 @@ const userValidator = function(userE, userDatabase, userP) {
   return false;
 };
 
-// function to get links according to userId
+// function to get URLs according to userId
 const getURLfromId = function(userID, urlDatabase) {
   let result = {};
   for (const shortURL in urlDatabase) {
@@ -53,6 +53,17 @@ const getURLfromId = function(userID, urlDatabase) {
     }
   }
   return result;
+};
+
+// function to validate if shortURL exist and if it exists, does it belong to the logged in user
+const shortURLValidator = function(userID, shortURL, urlDB) {
+  if (Object.keys(urlDB).includes(shortURL)) {
+    if (userID === urlDB[shortURL].userID) {
+      return true;
+    }
+    return false;
+  }
+  return "shortURL does not exist";
 };
 
 // Server codes
@@ -129,6 +140,12 @@ app.post('/urls', (req, res) => {
 // get /urls/:shortURL (urls_show ejs template)
 // route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
+  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
+
+  if (validation === "shortURL does not exist") {
+    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
+    return;
+  }
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -140,22 +157,33 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // route to handle the delete post request
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if (!userID) {
-    res.redirect('/registration');
+  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
+
+  if (validation === "shortURL does not exist") {
+    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
     return;
   }
-  delete urlDatabase[req.params.shortURL];
+
+  if (validation) {
+    delete urlDatabase[req.params.shortURL];
+  }
+
   res.redirect('/urls');
 });
 
 // route to handle the edit post request
 app.post('/u/:shortURL/edit', (req, res) => {
-  if (!userID) {
-    res.redirect('/registration');
+  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
+
+  if (validation === "shortURL does not exist") {
+    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
     return;
   }
-  const newLongURL = req.body.longURL;
-  urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID };
+
+  if (validation) {
+    const newLongURL = req.body.longURL;
+    urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID };
+  }
   res.redirect('/urls');
 });
 
