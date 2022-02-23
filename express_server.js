@@ -16,7 +16,6 @@ const generateRandomString = function(urlDB) {
   
     return result;
   };
-
   // set a starting point to start the generation process
   let result = Object.keys(urlDB)[0];
   // keep generating string if the generated string exists in urlDB already
@@ -24,7 +23,25 @@ const generateRandomString = function(urlDB) {
     result = randomValidCharCode();
   }
   return result;
+};
 
+// function to validate is email or both email and password match in the userDababase
+const userValidator = function(userE, userDatabase, userP) {
+  if (!userP) {
+    for (const id in userDatabase) {
+      if (userE === userDatabase[id].email) {
+        return true;
+      }
+    }
+  }
+  if (userP) {
+    for (const id in userDatabase) {
+      if (userE === userDatabase[id].email && userP === userDatabase[id].password) {
+        return id;
+      }
+    }
+  }
+  return false;
 };
 
 // Server codes
@@ -121,7 +138,7 @@ app.get('/u/:shortURL', (req, res) => {
 
 // route for user logout and clear cookie
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -144,16 +161,15 @@ app.post('/registration', (req, res) => {
     return;
   }
   // check if email already in userDatabase
-  for (const key in userDatabase) {
-    if (currentUserEmail === userDatabase[key].email) {
-      res.status(400).send(`<h1>Error 400<br>Email ${currentUserEmail} already been registered`);
-      return;
-    }
+  if (userValidator(currentUserEmail, userDatabase)) {
+    res.status(400).send(`<h1>Error 400<br>Email <u>${currentUserEmail}</u> already been registered`);
+    return;
   }
+  // store user into database
   userDatabase[userRandomID] = {
     id: userRandomID,
-    email: req.body.email,
-    password: req.body.password
+    email: currentUserEmail,
+    password: currentUserPW
   };
   
   res.cookie('user_id', userRandomID);
@@ -174,17 +190,22 @@ app.post('/login', (req, res) => {
   const currentUserPW = req.body.password;
   let currentUserId = undefined;
   
-  console.log(currentUserEmail, currentUserPW);
-  // get the user_id from userDatabase from mathing email
-  for (const id in userDatabase) {
-    if (currentUserEmail === userDatabase[id].email && currentUserPW === userDatabase[id].password) {
-      currentUserId = id;
-    }
+  // return 403 error if no email is matched
+  if (!userValidator(currentUserEmail, userDatabase)) {
+    res.status(403).send(`<h1>Error 403<br>Email <u>${currentUserEmail}</u> has not been registered`);
+    return;
   }
 
+  
+  // get the user_id from userDatabase from mathing email
+  currentUserId = userValidator(currentUserEmail, userDatabase, currentUserPW);
+  
+  // setup cookie for successful login
   if (currentUserId) {
     res.cookie('user_id', currentUserId);
     res.redirect('/urls');
+  } else { // return 403 error if email is matched but password is wrong
+    res.status(403).send(`<h1>Error 403<br>Password wrong`);
   }
 });
 
