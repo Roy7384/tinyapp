@@ -152,7 +152,12 @@ app.post('/u/:shortURL/edit', (req, res) => {
 
 // redirect shortURL to longURL
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlsBID[req.params.shortURL];
+  let longURL;
+  for (const shortURL in urlDatabase) {
+    if (req.params.shortURL === shortURL) {
+      longURL = urlDatabase[shortURL].longURL;
+    }
+  }
   res.redirect(longURL);
 });
 
