@@ -52,7 +52,7 @@ app.get("/", (req, res) => {
 });
 
 app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
+  res.json(userDatabase);
 });
 
 app.get('/hello', (req, res) => {
@@ -143,11 +143,26 @@ app.get('/registration', (req, res) => {
 // route to handle post request from registration page
 app.post('/registration', (req, res) => {
   const userRandomID = generateRandomString(userDatabase);
+  const currentUserEmail = req.body.email;
+  const currentUserPW = req.body.password;
+  // check if email or password is empty
+  if (!(currentUserEmail && currentUserPW)) {
+    res.status(400).send('<h1>Error 400<br>Email or password is missing</h1>');
+    return;
+  }
+  // check if email already in userDatabase
+  for (const key in userDatabase) {
+    if (currentUserEmail === userDatabase[key].email) {
+      res.status(400).send(`<h1>Error 400<br>Email ${currentUserEmail} already been registered`);
+      return;
+    }
+  }
   userDatabase[userRandomID] = {
     id: userRandomID,
     email: req.body.email,
     password: req.body.password
   };
+  
   res.cookie('user_id', userRandomID);
   res.redirect('/urls');
 });
