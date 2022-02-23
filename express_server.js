@@ -42,6 +42,9 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const userDatabase = {
+  default : {id: 'default', email: 'default', password: 'default'}
+};
 
 // handlers when client requests corresponding endpoints
 app.get("/", (req, res) => {
@@ -62,7 +65,7 @@ app.get('/hello', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"] };
+    user: userDatabase[req.cookies['user_id']] };
   res.render('urls_index', templateVars);
 });
 
@@ -70,7 +73,7 @@ app.get('/urls', (req, res) => {
 // route to render url submit page
 app.get('/urls/new', (req, res) => {
   const templateVars = {
-    username: req.cookies["username"]
+    user: userDatabase[req.cookies['user_id']]
   };
   res.render('urls_new', templateVars);
 });
@@ -89,7 +92,9 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"] };
+    user: userDatabase[req.cookies['user_id']]
+  };
+
 
   res.render('urls_show.ejs', templateVars);
 });
@@ -124,6 +129,26 @@ app.post('/login', (req, res) => {
 // route for user logout and clear cookie
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+// route to get /registration page
+app.get('/registration', (req, res) => {
+  const templateVars = {
+    user: userDatabase[req.cookies['user_id']]
+  };
+  res.render('urls_regis', templateVars);
+});
+
+// route to handle post request from registration page
+app.post('/registration', (req, res) => {
+  const userRandomID = generateRandomString(userDatabase);
+  userDatabase[userRandomID] = {
+    id: userRandomID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie('user_id', userRandomID);
   res.redirect('/urls');
 });
 
