@@ -31,6 +31,7 @@ const generateRandomString = function(urlDB) {
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 const PORT = 8080; // default port 8080
 
@@ -55,16 +56,23 @@ app.get('/hello', (req, res) => {
 });
 
 
-
+// get /urls
 // pass the urlDatabase to ejs template to display urls_index page
 app.get('/urls', (req, res) => {
-  const templateVars = {urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies["username"] };
+    
   res.render('urls_index', templateVars);
 });
 
+// get /urls/new
 // route to render url submit page
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render('urls_new', templateVars);
 });
 
 // route to handle the add new url post request from client
@@ -75,10 +83,14 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
-
+// get /urls/:shortURL (urls_show ejs template)
 // route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"] };
+
   res.render('urls_show.ejs', templateVars);
 });
 
@@ -100,6 +112,13 @@ app.post('/u/:shortURL/edit', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+// route for user login using cookie
+app.post('/login', (req, res) => {
+  const userName = req.body.username;
+  res.cookie('username', userName);
+  res.redirect('/urls');
 });
 
 // setup server to listen incoming requests made to port: PORT
