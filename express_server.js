@@ -17,7 +17,7 @@ const generateRandomString = function(urlDB) {
     return result;
   };
   // set a starting point to start the generation process
-  let result = Object.keys(urlDB)[0];
+  let result = randomValidCharCode();
   // keep generating string if the generated string exists in urlDB already
   while (urlDB[result]) {
     result = randomValidCharCode();
