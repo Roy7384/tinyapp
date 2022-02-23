@@ -132,6 +132,7 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
+    userOwnURL: urlsBID,
     user: userDatabase[userID]
   };
   res.render('urls_show.ejs', templateVars);
