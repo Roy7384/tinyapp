@@ -131,7 +131,7 @@ app.post('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlsBID[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: userDatabase[userID]
   };
   res.render('urls_show.ejs', templateVars);
@@ -145,6 +145,10 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 // route to handle the edit post request
 app.post('/u/:shortURL/edit', (req, res) => {
+  if (!userID) {
+    res.redirect('/registration');
+    return;
+  }
   const newLongURL = req.body.longURL;
   urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID };
   res.redirect('/urls');
