@@ -44,6 +44,17 @@ const userValidator = function(userE, userDatabase, userP) {
   return false;
 };
 
+// function to get links according to userId
+const getURLfromId = function(userID, urlDatabase) {
+  let result = {};
+  for (const shortURL in urlDatabase) {
+    if (userID === urlDatabase[shortURL].userID) {
+      result[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
+  return result;
+};
+
 // Server codes
 const express = require("express");
 const app = express();
@@ -56,33 +67,41 @@ app.set('view engine', 'ejs');
 app.use(cookieParser());
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "default"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "default"
+  }
 };
 const userDatabase = {
   default : {id: 'default', email: 'default@com', password: 'default'}
 };
 
-// handlers when client requests corresponding endpoints
-app.get("/", (req, res) => {
-  res.send("Hello!");
+// set up global variable so that middleware can parse urlDatabase according to userID
+let userID = undefined;
+let urlsBID = undefined;
+
+// parse urls according to logged in user for the rest of route to use
+app.use('/', (req, res, next) => {
+  userID = req.cookies['user_id'];
+  urlsBID = getURLfromId(userID, urlDatabase);
+  next();
 });
 
+// for debugging purpose, can use curl to check database without refresh webpage
 app.get('/urls.json', (req, res) => {
-  res.json(userDatabase);
+  res.json(urlDatabase);
 });
-
-app.get('/hello', (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 
 // get /urls
 // pass the urlDatabase to ejs template to display urls_index page
 app.get('/urls', (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
-    user: userDatabase[req.cookies['user_id']] };
+    urls: urlsBID,
+    user: userDatabase[userID] };
   res.render('urls_index', templateVars);
 });
 
@@ -90,7 +109,7 @@ app.get('/urls', (req, res) => {
 // route to render url submit page
 app.get('/urls/new', (req, res) => {
   const templateVars = {
-    user: userDatabase[req.cookies['user_id']]
+    user: userDatabase[userID]
   };
   if (!templateVars.user) {
     res.redirect('/registration');
@@ -101,9 +120,9 @@ app.get('/urls/new', (req, res) => {
 
 // route to handle the add new url post request from client
 app.post('/urls', (req, res) => {
-  const newShortURL = generateRandomString(urlDatabase);
-  const newLongURL = req.body.longURL;
-  urlDatabase[newShortURL] = newLongURL;
+  const newShortURL = generateRandomString(urlsBID);
+  const longURL = req.body.longURL;
+  urlDatabase[newShortURL] = { longURL, userID};
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -112,31 +131,28 @@ app.post('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
-    user: userDatabase[req.cookies['user_id']]
+    longURL: urlsBID[req.params.shortURL],
+    user: userDatabase[userID]
   };
-
-
   res.render('urls_show.ejs', templateVars);
 });
 
 // route to handle the delete post request
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  console.log(urlDatabase);
   res.redirect('/urls');
 });
 
 // route to handle the edit post request
 app.post('/u/:shortURL/edit', (req, res) => {
   const newLongURL = req.body.longURL;
-  urlDatabase[req.params.shortURL] = newLongURL;
+  urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID };
   res.redirect('/urls');
 });
 
 // redirect shortURL to longURL
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlsBID[req.params.shortURL];
   res.redirect(longURL);
 });
 
