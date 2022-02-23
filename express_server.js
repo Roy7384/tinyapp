@@ -43,7 +43,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 const userDatabase = {
-  default : {id: 'default', email: 'default', password: 'default'}
+  default : {id: 'default', email: 'default@com', password: 'default'}
 };
 
 // handlers when client requests corresponding endpoints
@@ -119,13 +119,6 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
-// route for user login using cookie
-// app.post('/login', (req, res) => {
-//   const userName = req.body.username;
-//   res.cookie('username', userName);
-//   res.redirect('/urls');
-// });
-
 // route for user logout and clear cookie
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
@@ -173,6 +166,26 @@ app.get('/login', (req, res) => {
     user: userDatabase[req.cookies.user_id]
   };
   res.render('urls_login', templateVars);
+});
+
+// route for POST /login
+app.post('/login', (req, res) => {
+  const currentUserEmail = req.body.email;
+  const currentUserPW = req.body.password;
+  let currentUserId = undefined;
+  
+  console.log(currentUserEmail, currentUserPW);
+  // get the user_id from userDatabase from mathing email
+  for (const id in userDatabase) {
+    if (currentUserEmail === userDatabase[id].email && currentUserPW === userDatabase[id].password) {
+      currentUserId = id;
+    }
+  }
+
+  if (currentUserId) {
+    res.cookie('user_id', currentUserId);
+    res.redirect('/urls');
+  }
 });
 
 // setup server to listen incoming requests made to port: PORT
