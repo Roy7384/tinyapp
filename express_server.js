@@ -36,6 +36,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -62,7 +63,6 @@ app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
     username: req.cookies["username"] };
-    
   res.render('urls_index', templateVars);
 });
 
@@ -118,6 +118,12 @@ app.get('/u/:shortURL', (req, res) => {
 app.post('/login', (req, res) => {
   const userName = req.body.username;
   res.cookie('username', userName);
+  res.redirect('/urls');
+});
+
+// route for user logout and clear cookie
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 
