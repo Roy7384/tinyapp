@@ -32,7 +32,7 @@ const userValidator = function(userE, userDatabase, userP) {
   if (!userP) {
     for (const id in userDatabase) {
       if (userE === userDatabase[id].email) {
-        return true; // use for checking if email is already in system when registering
+        return id; // use for checking if email is already in system when registering
       }
     }
   }
@@ -44,7 +44,7 @@ const userValidator = function(userE, userDatabase, userP) {
       }
     }
   }
-  return false;
+  return undefined;
 };
 
 // function to get URLs according to userId
