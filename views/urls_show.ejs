@@ -17,7 +17,7 @@
       <div class="card-body bg-light">
         
         <% if (user) { 
-          if (Object.keys(userOwnURL).includes(shortURL)) { %>
+          if (Object.keys(urls).includes(shortURL)) { %>
             
             <h4 class="text-secondary" style="margin-bottom: -0.5em;">Edit</h4>
               <form class="form-inline justify-content-center" action="/u/<%= shortURL %>/edit" method="POST">

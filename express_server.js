@@ -1,116 +1,51 @@
-// function to generate a unique shortURL
-const generateRandomString = function(urlDB) {
+/*
+ * +-----------------------------------------+
+ * | Dependencies, middleware and data setup |
+ * +-----------------------------------------+
+ */
+const {
+  generateRandomString,
+  userValidator,
+  getURLfromId,
+  shortURLValidator,
+  dateStrGen
+} = require('./helpers/helperFunctions');
+const {
+  urlDatabase,
+  userDatabase
+} = require('./data/data');
 
-  // helper function to generate the random string from character set of 0-9, A-Z and a-z
-  const randomValidCharCode = function() {
-    let result = '';
-  
-    for (let i = 0; i < 6; i++) {
-      let randomCharCode = 60;
-      while ((randomCharCode > 57 && randomCharCode < 65)
-          || (randomCharCode > 90 && randomCharCode < 97)) {
-        randomCharCode = Math.floor(48 + Math.random() * 74);
-      }
-      result += String.fromCharCode(randomCharCode);
-    }
-  
-    return result;
-  };
-  // set a starting point to start the generation process
-  let result = randomValidCharCode();
-  // keep generating string if the generated string exists in urlDB already
-  while (urlDB[result]) {
-    result = randomValidCharCode();
-  }
-  return result;
-};
-
-// function to validate is email or both email and password match in the userDababase
-const userValidator = function(userE, userDatabase, userP) {
-  if (!userP) {
-    for (const id in userDatabase) {
-      if (userE === userDatabase[id].email) {
-        return true;
-      }
-    }
-  }
-  if (userP) {
-    for (const id in userDatabase) {
-      if (userE === userDatabase[id].email && userP === userDatabase[id].password) {
-        return id;
-      }
-    }
-  }
-  return false;
-};
-
-// function to get URLs according to userId
-const getURLfromId = function(userID, urlDatabase) {
-  let result = {};
-  for (const shortURL in urlDatabase) {
-    if (userID === urlDatabase[shortURL].userID) {
-      result[shortURL] = urlDatabase[shortURL].longURL;
-    }
-  }
-  return result;
-};
-
-// function to validate if shortURL exist and if it exists, does it belong to the logged in user
-const shortURLValidator = function(userID, shortURL, urlDB) {
-  if (Object.keys(urlDB).includes(shortURL)) {
-    if (userID === urlDB[shortURL].userID) {
-      return true;
-    }
-    return false;
-  }
-  return "shortURL does not exist";
-};
-
-// function to generate date in readable string
-const dateStrGen = function() {
-  const dateNow = new Date();
-  return dateNow.toLocaleDateString('en-US');
-};
-
-// Server codes
 const express = require("express");
-const app = express();
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
-app.use(bodyParser.urlencoded({extended: true}));
+
 const PORT = 8080; // default port 8080
+const app = express();
 
 app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-// test Database for urls and users
-const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "default",
-    createDate: dateStrGen()
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "default",
-    createDate: dateStrGen()
-  }
-};
-const userDatabase = {
-  default : {id: 'default', email: 'default@com', password: 'default'}
-};
-
 // set up global variable so that middleware can parse urlDatabase according to userID for the rest of routes to use
-let userID = undefined;
-let urlsBID = undefined;
+let userID, urlsBID, templateVars;
 
 // parse urls according to logged in user for the rest of route to use
 app.use('/', (req, res, next) => {
-  userID = req.cookies['user_id'];
+  userID = req.cookies.user_id;
   urlsBID = getURLfromId(userID, urlDatabase);
+  templateVars = {
+    urls: urlsBID,
+    user: userDatabase[userID],
+    allUrlDB: urlDatabase
+  };
   next();
 });
 
+/*
+ * +----------------+
+ * | All GET Routes |
+ * +----------------+
+ */
 // for debugging purpose, can use curl to check database without refresh webpage
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
@@ -128,20 +63,13 @@ app.get('/', (req, res) => {
 // get /urls
 // pass the urlDatabase to ejs template to display urls_index page
 app.get('/urls', (req, res) => {
-  const templateVars = {
-    urls: urlsBID,
-    user: userDatabase[userID],
-    allUrlDB: urlDatabase
-  };
   res.render('urls_index', templateVars);
 });
 
 // get /urls/new
 // route to render url submit page
 app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    user: userDatabase[userID]
-  };
+
   if (!templateVars.user) {
     res.redirect('/registration');
     return;
@@ -149,31 +77,54 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
-// route to handle the add new url post request from client
-app.post('/urls', (req, res) => {
-  const createDate = dateStrGen();
-  const newShortURL = generateRandomString(urlsBID);
-  const longURL = req.body.longURL;
-  urlDatabase[newShortURL] = { longURL, userID, createDate};
-  res.redirect(`/urls/${newShortURL}`);
-});
-
 // get /urls/:shortURL (urls_show ejs template)
 // route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
   const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
-
+  
   if (validation === "shortURL does not exist") {
     res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
     return;
   }
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    userOwnURL: urlsBID,
-    user: userDatabase[userID]
-  };
+  templateVars['shortURL'] = req.params.shortURL;
+  templateVars['longURL'] = urlDatabase[req.params.shortURL].longURL;
+  
   res.render('urls_show.ejs', templateVars);
+});
+
+// redirect shortURL to longURL // todo: edge case GET this path directly with unvalid shortURL
+app.get('/u/:shortURL', (req, res) => {
+  let longURL;
+  for (const shortURL in urlDatabase) {
+    if (req.params.shortURL === shortURL) {
+      longURL = urlDatabase[shortURL].longURL;
+    }
+  }
+  res.redirect(longURL);
+});
+
+// route to get /registration page
+app.get('/registration', (req, res) => {
+  res.render('urls_regis', templateVars);
+});
+
+// route get to render user login page request
+app.get('/login', (req, res) => {
+  res.render('urls_login', templateVars);
+});
+
+/*
+ * +-----------------+
+ * | All POST Routes |
+ * +-----------------+
+ */
+// route to handle the add new url post request from client
+app.post('/urls', (req, res) => {
+  const createDate = dateStrGen();
+  const newShortURL = generateRandomString(urlDatabase);
+  const longURL = req.body.longURL;
+  urlDatabase[newShortURL] = { longURL, userID, createDate};
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 // route to handle the delete post request
@@ -203,20 +154,9 @@ app.post('/u/:shortURL/edit', (req, res) => {
 
   if (validation) {
     const newLongURL = req.body.longURL;
-    urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID };
+    urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID, createDate: dateStrGen() };
   }
   res.redirect('/urls');
-});
-
-// redirect shortURL to longURL
-app.get('/u/:shortURL', (req, res) => {
-  let longURL;
-  for (const shortURL in urlDatabase) {
-    if (req.params.shortURL === shortURL) {
-      longURL = urlDatabase[shortURL].longURL;
-    }
-  }
-  res.redirect(longURL);
 });
 
 // route for user logout and clear cookie
@@ -225,63 +165,46 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-// route to get /registration page
-app.get('/registration', (req, res) => {
-  const templateVars = {
-    user: userDatabase[req.cookies['user_id']]
-  };
-  res.render('urls_regis', templateVars);
-});
-
 // route to handle post request from registration page
 app.post('/registration', (req, res) => {
   const userRandomID = generateRandomString(userDatabase);
-  const currentUserEmail = req.body.email;
-  const currentUserPW = req.body.password;
+  const { email, password } = req.body;
+  
   // check if email or password is empty
-  if (!(currentUserEmail && currentUserPW)) {
+  if (!(email && password)) {
     res.status(400).send('<h1>Error 400<br>Email or password is missing</h1>');
     return;
   }
   // check if email already in userDatabase
-  if (userValidator(currentUserEmail, userDatabase)) {
-    res.status(400).send(`<h1>Error 400<br>Email <u>${currentUserEmail}</u> already been registered`);
+  if (userValidator(email, userDatabase)) {
+    res.status(400).send(`<h1>Error 400<br>Email <u>${email}</u> already been registered`);
     return;
   }
   // store user into database
   userDatabase[userRandomID] = {
     id: userRandomID,
-    email: currentUserEmail,
-    password: currentUserPW
+    email,
+    password
   };
   
   res.cookie('user_id', userRandomID);
   res.redirect('/urls');
 });
 
-// route get to render user login page request
-app.get('/login', (req, res) => {
-  const templateVars = {
-    user: userDatabase[req.cookies.user_id]
-  };
-  res.render('urls_login', templateVars);
-});
-
 // route for POST /login
 app.post('/login', (req, res) => {
-  const currentUserEmail = req.body.email;
-  const currentUserPW = req.body.password;
+
+  const { email, password } = req.body;
   let currentUserId = undefined;
   
   // return 403 error if no email is matched
-  if (!userValidator(currentUserEmail, userDatabase)) {
-    res.status(403).send(`<h1>Error 403<br>Email <u>${currentUserEmail}</u> has not been registered`);
+  if (!userValidator(email, userDatabase)) {
+    res.status(403).send(`<h1>Error 403<br>Email <u>${email}</u> has not been registered`);
     return;
   }
 
-  
   // get the user_id from userDatabase from mathing email
-  currentUserId = userValidator(currentUserEmail, userDatabase, currentUserPW);
+  currentUserId = userValidator(email, userDatabase, password);
   
   // setup cookie for successful login
   if (currentUserId) {
@@ -294,5 +217,5 @@ app.post('/login', (req, res) => {
 
 // setup server to listen incoming requests made to port: PORT
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp server listening on port ${PORT}!`);
 });
