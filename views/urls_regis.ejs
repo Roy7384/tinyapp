@@ -9,8 +9,9 @@
 <body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
-    <h2>Register</h2>
+    <h2>Sign up and start shortening</h2>
     <form action="/registration" method="POST">
+      <small id="emailHelp" class="form-text text-muted" style="margin-bottom: 2em;">Already have an account? <a href="/login">Log in</a></small>
       <div class="form-group">
         <label for="exampleInputEmail1">Email address</label>
         <input type="email" name="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email" style="width: 300px;">

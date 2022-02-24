@@ -15,13 +15,13 @@
         <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
       </div>
       <div class="card-body bg-light" style="display: flex; justify-content: center">
-        <ul class="list-group w-50">
+        <ul class="list-group w-75">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Created Date
             <span ><%= allUrlDB[shortURL].createDate %></span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            Number of visits of TinyURL
+            Number of visits to TinyURL
             <span class="badge badge-primary badge-pill" style="width: 3em;"><%= allUrlDB[shortURL].clickCount %></span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">

@@ -65,11 +65,19 @@ app.get('/', (req, res) => {
 
 // route to get /registration page
 app.get('/registration', (req, res) => {
+  if (templateVars.user) {
+    res.redirect('/urls');
+    return;
+  }
   res.render('urls_regis', templateVars);
 });
 
 // route get to render user login page request
 app.get('/login', (req, res) => {
+  if (templateVars.user) {
+    res.redirect('/urls');
+    return;
+  }
   res.render('urls_login', templateVars);
 });
 
@@ -84,7 +92,7 @@ app.get('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
 
   if (!templateVars.user) {
-    res.redirect('/registration');
+    res.redirect('/login');
     return;
   }
   res.render('urls_new', templateVars);
