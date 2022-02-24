@@ -106,9 +106,11 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // redirect shortURL to longURL // todo: edge case GET this path directly with unvalid shortURL
 app.get('/u/:shortURL', (req, res) => {
+  const shortURLrequested = req.params.shortURL;
+  urlDatabase[shortURLrequested].clickCount ++;  // update click counts ie. number of visits
   let longURL;
   for (const shortURL in urlDatabase) {
-    if (req.params.shortURL === shortURL) {
+    if (shortURLrequested === shortURL) {
       longURL = urlDatabase[shortURL].longURL;
     }
   }
