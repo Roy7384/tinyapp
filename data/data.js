@@ -12,7 +12,7 @@ const urlDatabase = {
   }
 };
 const userDatabase = {
-  default : {id: 'default', email: 'default@com', password: 'default'}
+  default : {id: 'default', email: 'default@com', password: '$2a$10$KemRGcOob5j0YuUj5A1koOAHaLXwhiIrCyrRfVI5Z5x.IhBoLB3Qq'}
 };
 
 module.exports = { urlDatabase, userDatabase };

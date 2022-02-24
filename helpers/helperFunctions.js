@@ -1,3 +1,5 @@
+const bcrypt = require("bcryptjs");
+
 // function to generate a unique shortURL
 const generateRandomString = function(urlDB) {
 
@@ -36,7 +38,8 @@ const userValidator = function(userE, userDatabase, userP) {
   }
   if (userP) {
     for (const id in userDatabase) {
-      if (userE === userDatabase[id].email && userP === userDatabase[id].password) {
+      const passwordCheck = bcrypt.compareSync(userP, userDatabase[id].password);
+      if (userE === userDatabase[id].email && passwordCheck) {
         return id; // return the unique id for the user if both email and password match
       }
     }
