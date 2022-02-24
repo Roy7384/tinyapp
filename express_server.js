@@ -17,7 +17,7 @@ const {
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser');
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
 
 const PORT = 8080; // default port 8080
@@ -25,14 +25,17 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'user_id',
+  keys: ['rrl', 'rolex', 'sub']
+}));
 
 // set up global variable so that middleware can parse urlDatabase according to userID for the rest of routes to use
 let userID, urlsBID, templateVars;
 
 // parse urls according to logged in user for the rest of route to use
 app.use('/', (req, res, next) => {
-  userID = req.cookies.user_id;
+  userID = req.session.user_id;
   urlsBID = getURLfromId(userID, urlDatabase);
   templateVars = {
     urls: urlsBID,
@@ -162,7 +165,7 @@ app.post('/u/:shortURL/edit', (req, res) => {
 
 // route for user logout and clear cookie
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  req.session = null;
   res.redirect('/urls');
 });
 
@@ -190,7 +193,7 @@ app.post('/registration', (req, res) => {
     password
   };
   
-  res.cookie('user_id', userRandomID);
+  req.session.user_id = userRandomID;
   res.redirect('/urls');
 });
 
@@ -211,7 +214,7 @@ app.post('/login', (req, res) => {
   
   // setup cookie for successful login
   if (currentUserId) {
-    res.cookie('user_id', currentUserId);
+    req.session.user_id = currentUserId;
     res.redirect('/urls');
   } else { // return 403 error if email is matched but password is wrong
     res.status(403).send(`<h1>Error 403<br>Password wrong`);
