@@ -21,12 +21,12 @@
             <span ><%= allUrlDB[shortURL].createDate %></span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            Number of visits
+            Number of visits of TinyURL
             <span class="badge badge-primary badge-pill" style="width: 3em;"><%= allUrlDB[shortURL].clickCount %></span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Number of unique visitors
-            <span class="badge badge-primary badge-pill" style="width: 3em;"><%= allUrlDB[shortURL].uniqueVisitors %></span>
+            <span class="badge badge-primary badge-pill" style="width: 3em;"><%= allUrlDB[shortURL].uniqueVisitors.length %></span>
           </li>
         </ul>
       </div>

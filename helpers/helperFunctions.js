@@ -75,16 +75,16 @@ const dateStrGen = function() {
   return dateNow.toLocaleDateString('en-US', {hour: '2-digit', minute:'2-digit'});
 };
 
-// function to keep track of unique visitors use a short link
+// function to keep track of unique visitors that used the short link
 const uniqueVisitorTracker = function(cookie, shortURL, urlDB, userDB) {
-  if (!cookie.viewedBefore) { // check if this user viewed the link before from their cookie
-    urlDB[shortURL].uniqueVisitors ++; // add to the count
+  if (!urlDB[shortURL].uniqueVisitors.includes(cookie.user_id)) { // check if this user viewed the link before from their cookie
     
-    // if visitor is non-user, setup a cookie for them to track that they clicked the link
+    // if visitor is non-user, first setup a cookie for them to track that they clicked the link
     if (!cookie.user_id) {
       cookie.user_id = generateRandomString(userDB);
     }
-    cookie.viewedBefore = true;
+
+    urlDB[shortURL].uniqueVisitors.push(cookie.user_id); // add the userid to database
   }
 };
 

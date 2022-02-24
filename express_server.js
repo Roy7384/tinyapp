@@ -133,7 +133,15 @@ app.post('/urls', (req, res) => {
   const createDate = dateStrGen();
   const newShortURL = generateRandomString(urlDatabase);
   const longURL = req.body.longURL;
-  urlDatabase[newShortURL] = { longURL, userID, createDate};
+
+  urlDatabase[newShortURL] = {
+    longURL,
+    userID,
+    createDate,
+    clickCount: 0,
+    uniqueVisitors: []
+  };
+
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -164,7 +172,7 @@ app.patch('/urls/:shortURL', (req, res) => {
 
   if (validation) {
     const newLongURL = req.body.longURL;
-    urlDatabase[req.params.shortURL] = { longURL: newLongURL, userID, createDate: dateStrGen() };
+    urlDatabase[req.params.shortURL].longURL = newLongURL;
   }
   res.redirect('/urls');
 });
