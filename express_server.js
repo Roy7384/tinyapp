@@ -18,6 +18,7 @@ const {
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 
 const PORT = 8080; // default port 8080
 const app = express();
@@ -48,7 +49,7 @@ app.use('/', (req, res, next) => {
  */
 // for debugging purpose, can use curl to check database without refresh webpage
 app.get('/urls.json', (req, res) => {
-  res.json(urlDatabase);
+  res.json(userDatabase);
 });
 
 // get /
@@ -168,7 +169,9 @@ app.post('/logout', (req, res) => {
 // route to handle post request from registration page
 app.post('/registration', (req, res) => {
   const userRandomID = generateRandomString(userDatabase);
-  const { email, password } = req.body;
+  const { email } = req.body;
+  const oringinPassword = req.body.password;
+  const password = bcrypt.hashSync(oringinPassword, 10);
   
   // check if email or password is empty
   if (!(email && password)) {
