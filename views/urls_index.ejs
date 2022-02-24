@@ -28,15 +28,15 @@
         <tbody>
           <% for(let url in urls) { %>
             <tr>
-              <td><%= url %></td>
-              <td><%= urls[url] %></td>
-              <td><%= allUrlDB[url].createDate %></td>
-              <td class="text-center">
+              <td class="align-middle"><%= url %></td>
+              <td class="align-middle"><%= urls[url] %></td>
+              <td class="align-middle"><%= allUrlDB[url].createDate %></td>
+              <td class="text-center align-middle">
                 <form method="POST" action="/urls/<%= url %>/delete">
                   <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
               </td>
-              <td class="text-center">
+              <td class="text-center align-middle">
                 <form method="GET" action="/urls/<%= url %>">
                   <button type="submit" class="btn btn-outline-secondary">Edit</button>
                 </form>

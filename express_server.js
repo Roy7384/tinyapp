@@ -151,9 +151,10 @@ app.get('/urls/new', (req, res) => {
 
 // route to handle the add new url post request from client
 app.post('/urls', (req, res) => {
+  const createDate = dateStrGen();
   const newShortURL = generateRandomString(urlsBID);
   const longURL = req.body.longURL;
-  urlDatabase[newShortURL] = { longURL, userID};
+  urlDatabase[newShortURL] = { longURL, userID, createDate};
   res.redirect(`/urls/${newShortURL}`);
 });
 
