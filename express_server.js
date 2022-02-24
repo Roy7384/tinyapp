@@ -48,10 +48,10 @@ app.use('/', (req, res, next) => {
 });
 
 /*
- * +----------------+
- * | All GET Routes |
- * +----------------+
- */
+* +----------------+
+* | All GET Routes |
+* +----------------+
+*/
 
 // get / acording to whether user is logged in or not
 app.get('/', (req, res) => {
@@ -60,6 +60,16 @@ app.get('/', (req, res) => {
     return;
   }
   res.redirect('/registration');
+});
+
+// route to get /registration page
+app.get('/registration', (req, res) => {
+  res.render('urls_regis', templateVars);
+});
+
+// route get to render user login page request
+app.get('/login', (req, res) => {
+  res.render('urls_login', templateVars);
 });
 
 // get /urls
@@ -103,16 +113,6 @@ app.get('/u/:shortURL', (req, res) => {
     }
   }
   res.redirect(longURL);
-});
-
-// route to get /registration page
-app.get('/registration', (req, res) => {
-  res.render('urls_regis', templateVars);
-});
-
-// route get to render user login page request
-app.get('/login', (req, res) => {
-  res.render('urls_login', templateVars);
 });
 
 /*

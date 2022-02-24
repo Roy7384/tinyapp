@@ -72,7 +72,7 @@ const shortURLValidator = function(userID, shortURL, urlDB) {
 // function to generate date in readable string
 const dateStrGen = function() {
   const dateNow = new Date();
-  return dateNow.toLocaleDateString('en-US');
+  return dateNow.toLocaleDateString('en-US', {hour: '2-digit', minute:'2-digit'});
 };
 
 module.exports = {
