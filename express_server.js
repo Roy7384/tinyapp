@@ -66,6 +66,12 @@ const shortURLValidator = function(userID, shortURL, urlDB) {
   return "shortURL does not exist";
 };
 
+// function to generate date in readable string
+const dateStrGen = function() {
+  const dateNow = new Date();
+  return dateNow.toLocaleDateString('en-US');
+};
+
 // Server codes
 const express = require("express");
 const app = express();
@@ -77,21 +83,24 @@ const PORT = 8080; // default port 8080
 app.set('view engine', 'ejs');
 app.use(cookieParser());
 
+// test Database for urls and users
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "default"
+    userID: "default",
+    createDate: dateStrGen()
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: "default"
+    userID: "default",
+    createDate: dateStrGen()
   }
 };
 const userDatabase = {
   default : {id: 'default', email: 'default@com', password: 'default'}
 };
 
-// set up global variable so that middleware can parse urlDatabase according to userID
+// set up global variable so that middleware can parse urlDatabase according to userID for the rest of routes to use
 let userID = undefined;
 let urlsBID = undefined;
 
@@ -107,12 +116,23 @@ app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
 });
 
+// get /
+app.get('/', (req, res) => {
+  if (userID) {
+    res.redirect('/urls');
+    return;
+  }
+  res.redirect('/registration');
+});
+
 // get /urls
 // pass the urlDatabase to ejs template to display urls_index page
 app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlsBID,
-    user: userDatabase[userID] };
+    user: userDatabase[userID],
+    allUrlDB: urlDatabase
+  };
   res.render('urls_index', templateVars);
 });
 
