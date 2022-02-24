@@ -50,12 +50,8 @@ app.use('/', (req, res, next) => {
  * | All GET Routes |
  * +----------------+
  */
-// for debugging purpose, can use curl to check database without refresh webpage
-app.get('/urls.json', (req, res) => {
-  res.json(userDatabase);
-});
 
-// get /
+// get / acording to whether user is logged in or not
 app.get('/', (req, res) => {
   if (userID) {
     res.redirect('/urls');
@@ -122,6 +118,7 @@ app.get('/login', (req, res) => {
  * | All POST Routes |
  * +-----------------+
  */
+
 // route to handle the add new url post request from client
 app.post('/urls', (req, res) => {
   const createDate = dateStrGen();
