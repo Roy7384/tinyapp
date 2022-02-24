@@ -8,7 +8,8 @@ const {
   userValidator,
   getURLfromId,
   shortURLValidator,
-  dateStrGen
+  dateStrGen,
+  uniqueVisitorTracker
 } = require('./helpers/helperFunctions');
 const {
   urlDatabase,
@@ -108,6 +109,10 @@ app.get('/urls/:shortURL', (req, res) => {
 app.get('/u/:shortURL', (req, res) => {
   const shortURLrequested = req.params.shortURL;
   urlDatabase[shortURLrequested].clickCount ++;  // update click counts ie. number of visits
+
+  // update unique visitor count
+  uniqueVisitorTracker(req.session, shortURLrequested, urlDatabase, userDatabase);
+
   let longURL;
   for (const shortURL in urlDatabase) {
     if (shortURLrequested === shortURL) {
