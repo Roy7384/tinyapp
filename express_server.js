@@ -19,11 +19,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
+const methodOverride = require("method-override");
 
 const PORT = 8080; // default port 8080
 const app = express();
 
 app.set('view engine', 'ejs');
+app.use(methodOverride('_method'));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'user_id',
@@ -114,9 +116,9 @@ app.get('/login', (req, res) => {
 });
 
 /*
- * +-----------------+
- * | All POST Routes |
- * +-----------------+
+ * +---------------------------+
+ * | All POST and other Routes |
+ * +---------------------------+
  */
 
 // route to handle the add new url post request from client
@@ -128,8 +130,8 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
-// route to handle the delete post request
-app.post('/urls/:shortURL/delete', (req, res) => {
+// route to handle the DELETE request
+app.delete('/urls/:shortURL', (req, res) => {
   const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
 
   if (validation === "shortURL does not exist") {
@@ -144,8 +146,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-// route to handle the edit post request
-app.post('/u/:shortURL/edit', (req, res) => {
+// route to handle the edit PATCH request
+app.patch('/urls/:shortURL', (req, res) => {
   const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
 
   if (validation === "shortURL does not exist") {
