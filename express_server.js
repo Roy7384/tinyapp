@@ -50,6 +50,41 @@ app.use('/', (req, res, next) => {
 });
 
 /*
+ * +-------------------+
+ * | Custom middleware |
+ * +-------------------+
+ */
+
+// middleware to validate passed in shortURL
+app.use('/*/:shortURL', (req, res, next) =>  {
+  if (req.params.shortURL === 'new') {
+    return next();
+  }
+  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
+  
+  if (validation === "shortURL does not exist") {
+    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!</h1>");
+    return;
+  }
+  next();
+});
+
+// middleware to validate correct user info is provided for any POST related request
+app.use('/urls', (req, res, next) => {
+  if (req.method === 'GET') {
+    return next();
+  }
+  const { email } = userDatabase[userID]; // get email by ID, will be undefined if not logged in
+  const validationStatus = userValidator(email, userDatabase);
+
+  if (!validationStatus) {  // if validation fail
+    res.status(403).send("<h1>Error 403 - Forbidden</h1>");
+    return;
+  }
+  next();
+});
+
+/*
 * +----------------+
 * | All GET Routes |
 * +----------------+
@@ -102,12 +137,7 @@ app.get('/urls/new', (req, res) => {
 // get /urls/:shortURL (urls_show ejs template)
 // route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
-  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
   
-  if (validation === "shortURL does not exist") {
-    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
-    return;
-  }
   templateVars['shortURL'] = req.params.shortURL;
   templateVars['longURL'] = urlDatabase[req.params.shortURL].longURL;
   
@@ -161,33 +191,16 @@ app.post('/urls', (req, res) => {
 
 // route to handle the DELETE request
 app.delete('/urls/:shortURL', (req, res) => {
-  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
-
-  if (validation === "shortURL does not exist") {
-    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
-    return;
-  }
-
-  if (validation) {
-    delete urlDatabase[req.params.shortURL];
-  }
-
+  
+  delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
 // route to handle the edit PATCH request
 app.patch('/urls/:shortURL', (req, res) => {
-  const validation = shortURLValidator(userID, req.params.shortURL, urlDatabase);
 
-  if (validation === "shortURL does not exist") {
-    res.status(404).send("<h1>Error 404<br>short URL does not exist in our database!");
-    return;
-  }
-
-  if (validation) {
-    const newLongURL = req.body.longURL;
-    urlDatabase[req.params.shortURL].longURL = newLongURL;
-  }
+  const newLongURL = req.body.longURL;
+  urlDatabase[req.params.shortURL].longURL = newLongURL;
   res.redirect('/urls');
 });
 
