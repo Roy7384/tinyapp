@@ -34,9 +34,20 @@
             </button>
           </p>
           <div class="collapse" id="collapseExample">
-            <div class="card card-body">
-              Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-            </div>
+            <div class="card-body bg-light" style="display: flex; justify-content: center;   padding: 0em;">
+              <ul class="list-group w-100">
+                <% for (const visit of allUrlDB[shortURL].visitHistory) { %>
+
+                  <li class="list-group-item d-flex align-items-center">
+                    Visited at &nbsp;
+                    <span ><%= visit.time %></span>
+                    &nbsp; by &nbsp;
+                    <span ><%= visit.userId %></span>
+                  </li>
+
+                <% } %>
+              </ul>
+           </div>
           </div>
         </ul>
       </div>

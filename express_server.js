@@ -9,7 +9,8 @@ const {
   getURLfromId,
   shortURLValidator,
   dateStrGen,
-  uniqueVisitorTracker
+  uniqueVisitorTracker,
+  historyTracker
 } = require('./helpers/helperFunctions');
 const {
   urlDatabase,
@@ -116,10 +117,14 @@ app.get('/urls/:shortURL', (req, res) => {
 // redirect shortURL to longURL // todo: edge case GET this path directly with unvalid shortURL
 app.get('/u/:shortURL', (req, res) => {
   const shortURLrequested = req.params.shortURL;
-  urlDatabase[shortURLrequested].clickCount ++;  // update click counts ie. number of visits
+  const thisURL = urlDatabase[shortURLrequested];
+  thisURL.clickCount ++;  // update click counts ie. number of visits
 
   // update unique visitor count
-  uniqueVisitorTracker(req.session, shortURLrequested, urlDatabase, userDatabase);
+  uniqueVisitorTracker(req.session, thisURL, userDatabase);
+  
+  // update visit history
+  historyTracker(thisURL, req.session.user_id);
 
   let longURL;
   for (const shortURL in urlDatabase) {
@@ -147,7 +152,8 @@ app.post('/urls', (req, res) => {
     userID,
     createDate,
     clickCount: 0,
-    uniqueVisitors: []
+    uniqueVisitors: [],
+    visitHistory: []
   };
 
   res.redirect(`/urls/${newShortURL}`);

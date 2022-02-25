@@ -5,7 +5,8 @@ const urlDatabase = {
     userID: "default",
     createDate: '2/23/2022, 06:00 AM',
     clickCount: 0,
-    uniqueVisitors: []
+    uniqueVisitors: [],
+    visitHistory: []
   },
   "9sm5xK": {
     longURL: "http://www.google.com",

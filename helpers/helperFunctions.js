@@ -76,16 +76,23 @@ const dateStrGen = function() {
 };
 
 // function to keep track of unique visitors that used the short link
-const uniqueVisitorTracker = function(cookie, shortURL, urlDB, userDB) {
-  if (!urlDB[shortURL].uniqueVisitors.includes(cookie.user_id)) { // check if this user viewed the link before from their cookie
+const uniqueVisitorTracker = function(cookie, url, userDB) {
+  if (!url.uniqueVisitors.includes(cookie.user_id)) { // check if this user viewed the link before from their cookie
     
     // if visitor is non-user, first setup a cookie for them to track that they clicked the link
     if (!cookie.user_id) {
       cookie.user_id = generateRandomString(userDB);
     }
 
-    urlDB[shortURL].uniqueVisitors.push(cookie.user_id); // add the userid to database
+    url.uniqueVisitors.push(cookie.user_id); // add the userid to database
   }
+};
+
+// function to track the history of visits to a short URL
+const historyTracker = function(url, userID) {
+  const time = dateStrGen();
+  const userId = userID;
+  url.visitHistory.push({ time, userId });
 };
 
 module.exports = {
@@ -94,5 +101,6 @@ module.exports = {
   getURLfromId,
   shortURLValidator,
   dateStrGen,
-  uniqueVisitorTracker
+  uniqueVisitorTracker,
+  historyTracker
 };
