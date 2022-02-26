@@ -218,7 +218,7 @@ app.post('/registration', (req, res) => {
   const password = bcrypt.hashSync(oringinPassword, 10);
   
   // check if email or password is empty
-  if (!(email && password)) {
+  if (!(email && oringinPassword)) {
     res.status(400).send('<h1>Error 400<br>Email or password is missing</h1>');
     return;
   }
@@ -250,8 +250,7 @@ app.post('/login', (req, res) => {
     return;
   }
 
-  // get the user_id from userDatabase from mathing email
-  currentUserId = userValidator(email, userDatabase, password);
+  currentUserId = userValidator(email, userDatabase, password) && password;
   
   // setup cookie for successful login
   if (currentUserId) {
