@@ -153,12 +153,7 @@ app.get('/u/:shortURL', (req, res) => {
   // update visit history
   historyTracker(thisURL, req.session.user_id);
 
-  let longURL;
-  for (const shortURL in urlDatabase) {
-    if (shortURLrequested === shortURL) {
-      longURL = urlDatabase[shortURL].longURL;
-    }
-  }
+  const { longURL } = thisURL;
   res.redirect(longURL);
 });
 

@@ -44,7 +44,7 @@ const userValidator = function(userE, userDatabase, userP) {
       }
     }
   }
-  return undefined;
+  return;
 };
 
 // function to get URLs according to userId
