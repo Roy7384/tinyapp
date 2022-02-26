@@ -117,13 +117,11 @@ app.get('/login', (req, res) => {
   res.render('urls_login', templateVars);
 });
 
-// get /urls
 // pass the urlDatabase to ejs template to display urls_index page
 app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-// get /urls/new
 // route to render url submit page
 app.get('/urls/new', (req, res) => {
 
@@ -134,7 +132,6 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
-// get /urls/:shortURL (urls_show ejs template)
 // route to return a page that shows a single URL and its shortened form
 app.get('/urls/:shortURL', (req, res) => {
   
@@ -144,7 +141,7 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show.ejs', templateVars);
 });
 
-// redirect shortURL to longURL // todo: edge case GET this path directly with unvalid shortURL
+// redirect shortURL to longURL
 app.get('/u/:shortURL', (req, res) => {
   const shortURLrequested = req.params.shortURL;
   const thisURL = urlDatabase[shortURLrequested];
